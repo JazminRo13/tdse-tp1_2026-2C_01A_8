@@ -26,18 +26,12 @@ El ciclo de trabajo del estacionamiento automático consta de tres etapas:
 Componentes e Interfaz Física
 
 La máquina de entrada de COMA está equipada con:
-
   Pantalla LCD de 7" y panel indicadores por voz (Voice Prompt).
-  
   Botón de solicitud de ticket (Ticket Button) y ranura de emisión (Ticket Slot).
-  
   Lector de tarjetas (Card Reader).
-  
-  Botón de ayuda (Help Button) e intercomunicador opcional de video/voz (Intercom).
-  
+  Botón de ayuda (Help Button) e intercomunicador opcional de video/voz (Intercom). 
   Visualizador LED de plazas vacantes (ej. "Vacant: 128").
-  
-  Cámara motorizada con luz automática y barrera de alta velocidad activada por sensor o radar
+  Cámara motorizada con luz automática y barrera de alta velocidad activada por sensor o radar.
 
 Modelo de Implementación Embebida (Proyecto TA134)
 
