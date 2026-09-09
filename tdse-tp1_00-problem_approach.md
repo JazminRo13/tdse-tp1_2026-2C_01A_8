@@ -22,7 +22,9 @@ El ciclo de trabajo del estacionamiento automático consta de tres etapas:
 3. Dispensador de Tickets de Entrada (Parking Ticket Dispenser Machine - Entry)
    
 Componentes e Interfaz Física
+
 La máquina de entrada de COMA está equipada con:
+
   Pantalla LCD de 7" y panel indicadores por voz (Voice Prompt).
   Botón de solicitud de ticket (Ticket Button) y ranura de emisión (Ticket Slot).
   Lector de tarjetas (Card Reader).
@@ -31,6 +33,7 @@ La máquina de entrada de COMA está equipada con:
   Cámara motorizada con luz automática y barrera de alta velocidad activada por sensor o radar
 
 Modelo de Implementación Embebida (Proyecto TA134)
+
 Para el desarrollo del prototipo (MVP) en el Taller de Sistemas Embebidos, esta máquina de entrada se desglose en una arquitectura modular basada en el patrón Escrutar → Procesar → Actuar
   Escrutar (Scrutinize / Sensores): Captura de entradas digitales como la cámara, el pulsador de ticket y los sensores de detección de presencia de vehículo (Sensor Coil)
 
