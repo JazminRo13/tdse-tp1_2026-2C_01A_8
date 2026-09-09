@@ -2,44 +2,43 @@
 ## Trabajo Práctico N°: 1 - Diagramas de Estado - Modelado
 ### Archivo: tdse-tp1_00-problem_approach.md
 
-La solución de COMA Electronics descrita en la presentación comprende la arquitectura completa de un sistema inteligente de gestión de estacionamientos y el detalle de funcionamiento de la terminal de entrada para la emisión de tickets
+---
 
-1. Estructura del Sistema (Intelligent Parking Management System)
-   
-La arquitectura general de la solución integra los siguientes componentes centrales:
-Servidor Central (Parking System Server): Centraliza el control y almacenamiento de los datos del estacionamiento
-Terminales de Entrada y Salida (Entry / Exit Machines): Estaciones de control de acceso para los vehículos
-Estación de Pago (Toll Computer / Automatic Pay Station): Equipos de cobro centralizado manuales o automáticos
+## 1. Solución de COMA Electronics:
 
-2. Flujo Operativo del Sistema (Automated Parking System)
-   
-El ciclo de trabajo del estacionamiento automático consta de tres etapas:
+El documento toma como modelo comercial de referencia el Intelligent Parking Management System de la firma COMA Electronics. Esta solución integra los siguientes componentes principales y flujo de trabajo:
 
-  Ingreso: El vehículo se aproxima a la terminal de entrada. El usuario presiona el botón de ticket (Ticket Button) y la máquina emite un ticket o tarjeta codificado con número de serie, fecha y hora. Simultáneamente, se envía la señal de apertura a la barrera de acceso (Barrier gate). El sistema registra el paso mediante sensores de bobina (sensor coils) y cámara de entrada
+## Arquitectura General del Sistema
+   La infraestructura del sistema de estacionamiento está compuesta por:
+   - Servidor Central (Parking System Server): Centraliza el control y procesamiento de datos.
+   - Terminales de Acceso: Módulos de entrada (Entry Machine) y de salida (Exit Machine).
+   - Estaciones de Cobro: Computadora de peaje (Toll Computer) y/o Estación de Pago Automático (Automatic Pay Station).
 
-  Pago: El cliente estaciona su vehículo. Antes de regresar al auto, acude a la caja central o a la estación automática de cobro (P20 Automatic Pay Station) para abonar la tarifa. Una vez efectuado el pago, el ticket queda validado con un tiempo de gracia preestablecido para salir.
-  
-  Egreso: Al llegar a la terminal de salida, el escáner (Ticket scanner) lee y valida el ticket abonado, emitiendo la señal de apertura para la barrera de salida.
-  
-3. Dispensador de Tickets de Entrada (Parking Ticket Dispenser Machine - Entry)
-   
-Componentes e Interfaz Física
+## Flujo Operativo del Sistema (Automated Parking System)
+   El ciclo completo de control de acceso y cobro comprende tres fases:
+   - Ingreso: El vehículo se aproxima a la terminal de entrada. Al presionar el botón (Ticket Button), la máquina emite un ticket o tarjeta con un número de serie, fecha y hora, y envía la señal de apertura a la barrera de acceso (Barrier gate). El área de entrada integra cámaras, el dispenser de tickets, escáner y bobinas sensoras de presencia (sensor coils).
+   - Estacionamiento y Pago: El cliente estaciona su vehículo y, antes de regresar a él, efectúa el pago en la caja central o en la estación automática de cobro (ej. P20 Automatic Pay Station). Al pagar, el ticket o tarjeta queda validado para la salida con un tiempo de gracia preestablecido.
+   - Egreso: El vehículo se presenta en la terminal de salida, donde el escáner lee el ticket validado y envía la señal para abrir la barrera de salida.
 
-La máquina de entrada de COMA está equipada con:
-  Pantalla LCD de 7" y panel indicadores por voz (Voice Prompt).
-  Botón de solicitud de ticket (Ticket Button) y ranura de emisión (Ticket Slot).
-  Lector de tarjetas (Card Reader).
-  Botón de ayuda (Help Button) e intercomunicador opcional de video/voz (Intercom). 
-  Visualizador LED de plazas vacantes (ej. "Vacant: 128").
-  Cámara motorizada con luz automática y barrera de alta velocidad activada por sensor o radar.
+## Componentes de la Terminal de Entrada (Parking Ticket Dispenser Machine - Entry)
+La terminal física de entrada de COMA incluye:
 
-Modelo de Implementación Embebida (Proyecto TA134)
+   - Pantalla LCD de 7" e indicador por voz (Voice Prompt).
+   - Botón de ticket (Ticket Button) y ranura de emisión (Ticket Slot).
+   - Lector de tarjetas (Card Reader) y botón de ayuda (Help Button).
+   - Cámara motorizada con luz automática e intercomunicador de video (opcional).
+   - Barrera de alta velocidad activada por radar.
+   - Visualizador LED de plazas vacantes (por ejemplo: "Vacant: 128")
 
-Para el desarrollo del prototipo (MVP) en el Taller de Sistemas Embebidos, esta máquina de entrada se desglose en una arquitectura modular basada en el patrón Escrutar → Procesar → Actuar
+## 2. Implementación de la Parking Ticket Dispenser Machine (Entry):
 
-  Escrutar (Scrutinize / Sensores): Captura de entradas digitales como la cámara, el pulsador de ticket y los sensores de detección de presencia de vehículo (Sensor Coil)
+## Arquitectura Modular (Escrutar, Procesar, Actuar)
 
-  Procesar (Process / Sistema): Lógica interna encargada de gestionar los estados y reglas del negocio
-Actuar (Act / Actuadores): Gestión de salidas digitales como la pantalla de visualización (Display), la impresora (Printer), el control de la barrera (Barrier) y la comunicación con el servidor (Server).
+El comportamiento del sistema embebido se desglosa en una estructura modular organizada en tres capas:
+## 1. Escrutar (Scrutinize / Sensores - Digital Inputs):
+   Encargado de capturar el estado de los elementos de entrada: la cámara (Camera), el pulsador de ticket (Button) y el detector de presencia vehicular (Sensor Coil).
 
-  Sincronización: Los módulos intercambian información mediante mensajes dentro de un esquema de ejecución cíclica no bloqueante (cada 1 ms) para garantizar un comportamiento comunitario del microcontrolador
+## 2. Procesar (Process / Sistema - System):
+   Gestiona la lógica de control y la secuencia de estados del prototipo: llegada del vehículo (Car arrives) $\rightarrow$ mensaje de bienvenida (Welcome) $\rightarrow$ presión del botón (Button is pressed) $\rightarrow$ impresión del ticket (Print ticket) $\rightarrow$ apertura de barrera (Open barrier) $\rightarrow$ vehículo ingresado (Car inside) $\rightarrow$ cierre de barrera (Close barrier) $\rightarrow$ egreso del área de entrada (Car leaves)
+
+
