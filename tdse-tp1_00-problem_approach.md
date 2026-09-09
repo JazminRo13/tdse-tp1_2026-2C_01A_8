@@ -30,7 +30,7 @@ La terminal física de entrada de COMA incluye:
    - Barrera de alta velocidad activada por radar.
    - Visualizador LED de plazas vacantes (por ejemplo: "Vacant: 128")
 
-## 2. Implementación de la Parking Ticket Dispenser Machine (Entry):
+###2. Implementación de la Parking Ticket Dispenser Machine (Entry):
 
 ## Arquitectura Modular (Escrutar, Procesar, Actuar)
 
@@ -38,7 +38,26 @@ El comportamiento del sistema embebido se desglosa en una estructura modular org
 ### 1. Escrutar (Scrutinize / Sensores - Digital Inputs):
    Encargado de capturar el estado de los elementos de entrada: la cámara (Camera), el pulsador de ticket (Button) y el detector de presencia vehicular (Sensor Coil).
 
-## 2. Procesar (Process / Sistema - System):
-   Gestiona la lógica de control y la secuencia de estados del prototipo: llegada del vehículo (Car arrives) $\rightarrow$ mensaje de bienvenida (Welcome) $\rightarrow$ presión del botón (Button is pressed) $\rightarrow$ impresión del ticket (Print ticket) $\rightarrow$ apertura de barrera (Open barrier) $\rightarrow$ vehículo ingresado (Car inside) $\rightarrow$ cierre de barrera (Close barrier) $\rightarrow$ egreso del área de entrada (Car leaves)
+### 2. Procesar (Process / Sistema - System):
+   Gestiona la lógica de control y la secuencia de estados del prototipo: llegada del vehículo (Car arrives) $\rightarrow$ mensaje de bienvenida (Welcome) $\rightarrow$ presión del botón (Button is pressed) $\rightarrow$ impresión del ticket (Print ticket) $\rightarrow$ apertura de barrera (Open barrier) $\rightarrow$ vehículo ingresado (Car inside) $\rightarrow$ cierre de barrera (Close barrier) $\rightarrow$ egreso del área de entrada (Car leaves).
+
+### 3.Actuar (Act / Actuadores - Digital Outputs):
+   Maneja las señales enviadas a las salidas físicas: pantalla (Display), impresora (Printer), barrera de acceso (Barrier) y servidor (Server).
+
+## Sustitución para Prototipado
+
+En caso de no disponer de los sensores o actuadores físicos reales para las pruebas del MVP, la especificación permite reemplazarlos por componentes discretos simples:
+
+   - Entradas (Sensores): La cámara (Camera) y la bobina sensora (Sensor coil) se representan mediante llaves de tipo On/Off, mientras que el botón (Button) se implementa con un pulsador.
+   - Salidas (Actuadores): La barrera (Barrier) se simula mediante un indicador LED.
+
+## Sincronización y modelo de ejecución
+
+   - Comunicación por Mensajes: La interacción y sincronización entre los módulos de sensores, sistema y actuadores se realiza exclusivamente mediante el intercambio de mensajes (Messages)
+   - Ejecutivo Cíclico No Bloqueante (Cyclic Executive):
+        - La ejecución se realiza mediante un ciclo no bloqueante con un período de 1 ms (each 1mS).
+        - En cada iteración de 1 ms, el sistema ejecuta secuencialmente: la revisión de cambios en los sensores (y emisión de mensajes), la lectura/procesamiento de mensajes en el sistema (y generación de nuevos mensajes) y la actualización de los actuadores en función de los mensajes recibidos.
+        - Regla de diseño clave: Debe garantizarse un comportamiento comunitario donde ningún módulo se apropie del uso del microprocesador; el uso de código bloqueante es inaceptable.
+
 
 
