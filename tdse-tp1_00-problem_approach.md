@@ -30,7 +30,7 @@ La terminal física de entrada de COMA incluye:
    - Barrera de alta velocidad activada por radar.
    - Visualizador LED de plazas vacantes (por ejemplo: "Vacant: 128")
 
-###2. Implementación de la Parking Ticket Dispenser Machine (Entry):
+## 2. Implementación de la Parking Ticket Dispenser Machine (Entry):
 
 ## Arquitectura Modular (Escrutar, Procesar, Actuar)
 
