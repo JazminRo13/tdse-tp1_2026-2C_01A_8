@@ -12,6 +12,7 @@ Estación de Pago (Toll Computer / Automatic Pay Station): Equipos de cobro cent
 
 2. Flujo Operativo del Sistema (Automated Parking System)
 El ciclo de trabajo del estacionamiento automático consta de tres etapas:
+
   Ingreso: El vehículo se aproxima a la terminal de entrada. El usuario presiona el botón de ticket (Ticket Button) y la máquina emite un ticket o tarjeta codificado con número de serie, fecha y hora. Simultáneamente, se envía la señal de apertura a la barrera de acceso (Barrier gate). El sistema registra el paso mediante sensores de bobina (sensor coils) y cámara de entrada
 
   Pago: El cliente estaciona su vehículo. Antes de regresar al auto, acude a la caja central o a la estación automática de cobro (P20 Automatic Pay Station) para abonar la tarifa. Una vez efectuado el pago, el ticket queda validado con un tiempo de gracia preestablecido para salir.
