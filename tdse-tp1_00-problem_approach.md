@@ -93,3 +93,18 @@ En caso de no disponer de los sensores o actuadores físicos reales para las pru
    - En caso afirmativo, ejecuta la acción física sobre la salida digital (Make Action).
    - Comprueba si se alcanzó el último actuador (Last Actuator?) para concluir la tarea.
 
+## 4. Reemplazo pulsadores , interruptores dip switch (Digital Inputs) a los sensores reales (camara, button y sensor coil) y led (Digital Outputs) a los actuadores reales (Display, Printer, Barrier y Sever)
+
+## Reemplazo de sensores (Digital Inputs) $\rightarrow$ Módulo `Sensor` (Escrutar)
+Las entradas digitales reales del entorno de entrada se sustituyen por interruptores y pulsadores de la siguiente manera:
+- Camera $\rightarrow$ Interruptor DIP Switch / Llave On/Off: Permite simular de forma permanente o estática la presencia de un vehículo dentro del rango visual de la cámara de entrada.
+- Button $\rightarrow$ Pulsador (Pushbutton): Simula la acción momentánea del usuario al presionar el botón físico de la máquina para solicitar la impresión del ticket.
+- Sensor Coil $\rightarrow$ Interruptor DIP Switch / Llave On/Off: Simula la detección de masa metálica del automóvil cuando se posiciona o pasa sobre la bobina inductiva del suelo.
+
+## Reemplazo de Actuadores (Digital Outputs) $\rightarrow$ Módulo Actuator (Actuar)
+Las salidas digitales que comandan la periferia del estacionamiento se reflejan visualmente mediante LEDs indicadores:
+- Barrier $\rightarrow$ LED de Barrera: Encendido cuando la barrera está arriba/abierta y apagado cuando está abajo/cerrada.
+- Display $\rightarrow$ LED de Estado/Pantalla: Se enciende cuando hay un mensaje activo para el usuario (o bien se acompaña de salidas por consola printf).
+- Printer $\rightarrow$ LED de Impresión: Se activa brevemente indicando el proceso de emisión/impresión del ticket.
+- Server $\rightarrow$ LED de Comunicación: Indica la transmisión de eventos o validaciones de ingreso hacia el servidor central.
+
