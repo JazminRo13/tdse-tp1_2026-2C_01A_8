@@ -59,5 +59,31 @@ En caso de no disponer de los sensores o actuadores físicos reales para las pru
         - En cada iteración de 1 ms, el sistema ejecuta secuencialmente: la revisión de cambios en los sensores (y emisión de mensajes), la lectura/procesamiento de mensajes en el sistema (y generación de nuevos mensajes) y la actualización de los actuadores en función de los mensajes recibidos.
         - Regla de diseño clave: Debe garantizarse un comportamiento comunitario donde ningún módulo se apropie del uso del microprocesador; el uso de código bloqueante es inaceptable.
 
+## 3. Modelos para describir el comportamiento de cada uno de los módulos de código en C:
 
+### 1. Escrutar $\rightarrow$ Sensor (Digital Inputs)
+   Encargado de inspeccionar las entradas digitales (cámara, botón y bobina sensora).
+   Algoritmo de ejecución (cada 1 ms):
+   - Recorre iterativamente cada sensor desde 1 hasta N (Sensor (from 1 to N)).
+   - Evalúa si ocurrió algún cambio en el estado del sensor (Any Change?).
+   - Si se detecta un cambio, genera y deposita un mensaje (Put Message).   
+   - Verifica si se evaluó el último sensor (Last Sensor?) para finalizar el ciclo de escrutinio.
+
+### 2.  Procesar $\rightarrow$ System (Interface / System)
+   Encargado de la lógica de control del sistema y la gestión de la máquina de estados.
+   Algoritmo de ejecución (cada 1 ms):
+      - Comprueba si existe algún mensaje entrante proveniente de los sensores (Any Message?).
+      - Si hay un mensaje, lo lee y carga (Load Message).
+      - Procesa el mensaje y determina si produce una transición o cambio en el estado del sistema (Any Change?).
+      - Si corresponde un cambio, genera y deposita un mensaje saliente destinado a los actuadores (Put Message).
+
+### 3. Actuar $\rightarrow$ Actuator (Digital Outputs)
+   Encargado de modificar el estado de los componentes físicos de salida (pantalla, impresora, barrera, servidor)
+   Algoritmo de ejecución (cada 1 ms):
+      - Recorre iterativamente cada actuador desde 1 hasta N (Actuator (from 1 to N)).
+      - Verifica si hay algún mensaje de comando destinado a ese actuador (Any Message?).
+      - Si existe el mensaje, lo carga (Load Message).
+      - Determina si el mensaje exige modificar el estado de la salida (Any Change?).
+      - En caso afirmativo, ejecuta la acción física sobre la salida digital (Make Action).
+      - Comprueba si se alcanzó el último actuador (Last Actuator?) para concluir la tarea.
 
