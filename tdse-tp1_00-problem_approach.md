@@ -35,7 +35,7 @@ La terminal física de entrada de COMA incluye:
 ## Arquitectura Modular (Escrutar, Procesar, Actuar)
 
 El comportamiento del sistema embebido se desglosa en una estructura modular organizada en tres capas:
-## 1. Escrutar (Scrutinize / Sensores - Digital Inputs):
+### 1. Escrutar (Scrutinize / Sensores - Digital Inputs):
    Encargado de capturar el estado de los elementos de entrada: la cámara (Camera), el pulsador de ticket (Button) y el detector de presencia vehicular (Sensor Coil).
 
 ## 2. Procesar (Process / Sistema - System):
