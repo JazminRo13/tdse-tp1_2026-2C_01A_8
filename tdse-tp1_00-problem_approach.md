@@ -1,4 +1,4 @@
-# # FIUBA - Electrónica - Taller de Sistemas Embebidos
+## FIUBA - Electrónica - Taller de Sistemas Embebidos
 ## Trabajo Práctico N°: 1 - Diagramas de Estado - Modelado
 ### Archivo: tdse-tp1_00-problem_approach.md
 
