@@ -76,20 +76,20 @@ En caso de no disponer de los sensores o actuadores físicos reales para las pru
    
    Algoritmo de ejecución (cada 1 ms):
    
-      - Comprueba si existe algún mensaje entrante proveniente de los sensores (Any Message?).
-      - Si hay un mensaje, lo lee y carga (Load Message).
-      - Procesa el mensaje y determina si produce una transición o cambio en el estado del sistema (Any Change?).
-      - Si corresponde un cambio, genera y deposita un mensaje saliente destinado a los actuadores (Put Message).
+   - Comprueba si existe algún mensaje entrante proveniente de los sensores (Any Message?).
+   - Si hay un mensaje, lo lee y carga (Load Message).
+   - Procesa el mensaje y determina si produce una transición o cambio en el estado del sistema (Any Change?).
+   - Si corresponde un cambio, genera y deposita un mensaje saliente destinado a los actuadores (Put Message).
 
 ### 3. Actuar $\rightarrow$ Actuator (Digital Outputs)
    Encargado de modificar el estado de los componentes físicos de salida (pantalla, impresora, barrera, servidor).
    
    Algoritmo de ejecución (cada 1 ms):
    
-      - Recorre iterativamente cada actuador desde 1 hasta N (Actuator (from 1 to N)).
-      - Verifica si hay algún mensaje de comando destinado a ese actuador (Any Message?).
-      - Si existe el mensaje, lo carga (Load Message).
-      - Determina si el mensaje exige modificar el estado de la salida (Any Change?).
-      - En caso afirmativo, ejecuta la acción física sobre la salida digital (Make Action).
-      - Comprueba si se alcanzó el último actuador (Last Actuator?) para concluir la tarea.
+   - Recorre iterativamente cada actuador desde 1 hasta N (Actuator (from 1 to N)).
+   - Verifica si hay algún mensaje de comando destinado a ese actuador (Any Message?).
+   - Si existe el mensaje, lo carga (Load Message).
+   - Determina si el mensaje exige modificar el estado de la salida (Any Change?).
+   - En caso afirmativo, ejecuta la acción física sobre la salida digital (Make Action).
+   - Comprueba si se alcanzó el último actuador (Last Actuator?) para concluir la tarea.
 
