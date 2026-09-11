@@ -27,7 +27,7 @@ realizar sus acciones sin utilizar código bloqueante.
 
 ---
 
-# Paso 10 - Eventos y Acciones del modelo Actuator
+# Eventos y Acciones del modelo Actuator
 
 ## Eventos del modelo Actuator
 
@@ -95,7 +95,7 @@ módulos continúen ejecutándose mientras transcurre el tiempo de actuación.
 
 ---
 
-# Paso 11 - Tabla de Estados y Excitaciones del modelo Actuator
+# Tabla de Estados y Excitaciones del modelo Actuator
 
 Para representar el funcionamiento del LED asociado a la barrera se definen
 cuatro estados.
@@ -287,30 +287,3 @@ En cada actualización el módulo:
 
 De esta manera, la temporización se realiza sin utilizar retardos bloqueantes.
 
----
-
-## Resumen del modelo Actuator
-
-El funcionamiento puede resumirse como:
-
-`ST_ACT_LED_OFF`
-
-↓ `EV_ACT_BARRIER_OPEN / tick = 0`
-
-`ST_ACT_LED_TURNING_ON`
-
-↓ `[tick >= DEL_ACT_NAME] / LED_ON()`
-
-`ST_ACT_LED_ON`
-
-↓ `EV_ACT_BARRIER_CLOSE / tick = 0`
-
-`ST_ACT_LED_TURNING_OFF`
-
-↓ `[tick >= DEL_ACT_NAME] / LED_OFF()`
-
-`ST_ACT_LED_OFF`
-
-Por lo tanto, el flujo completo de la implementación queda:
-
-`Sensor → System → Actuator → Barrier (LED)`
