@@ -22,7 +22,7 @@ uso de la CPU.
 
 ---
 
-# Paso 08 - Eventos y Acciones del modelo System
+# Eventos y Acciones del modelo System
 
 ## Eventos del modelo System
 
@@ -94,7 +94,7 @@ Por lo tanto:
 
 ---
 
-# Paso 09 - Tabla de Estados y Excitaciones del modelo System
+# Tabla de Estados y Excitaciones del modelo System
 
 Para describir el comportamiento del modelo `System` se definen los estados
 necesarios para representar la secuencia de ingreso del vehículo.
@@ -216,14 +216,6 @@ donde:
 Para el comportamiento definido en este modelo no es necesario utilizar
 condiciones adicionales (`guards`), por lo que en la tabla se indica `-`.
 
-Por ejemplo:
-
-`EV_SYS_BTN_PRESSED / EV_ACT_BARRIER_OPEN`
-
-indica que, cuando el sistema se encuentra esperando la pulsación del botón,
-el evento `EV_SYS_BTN_PRESSED` provoca una transición y genera como efecto
-la solicitud de apertura de la barrera.
-
 ---
 
 ## Ejecución temporizada
@@ -245,33 +237,6 @@ En cada actualización el módulo:
 La ejecución debe ser **no bloqueante**, garantizando un comportamiento
 comunitario donde ningún módulo se apropie del uso del microprocesador.
 
----
 
-## Resumen del modelo System
 
-El comportamiento del modelo puede resumirse de la siguiente manera:
 
-`ST_SYS_IDLE`
-
-↓ `EV_SYS_CAR_ARRIVES`
-
-`ST_SYS_WAIT_FOR_BTN`
-
-↓ `EV_SYS_BTN_PRESSED / EV_ACT_BARRIER_OPEN`
-
-`ST_SYS_WAIT_FOR_CAR`
-
-↓ `EV_SYS_CAR_LEAVES / EV_ACT_BARRIER_CLOSE`
-
-`ST_SYS_IDLE`
-
-El flujo entre los módulos es:
-
-`Sensor → System → Actuator → Barrier (LED)`
-
-donde:
-
-- `Sensor` se encarga de **escrutar** las entradas.
-- `System` se encarga de **procesar** los eventos.
-- `Actuator` se encarga de **actuar** sobre la salida digital correspondiente
-  a la barrera.
