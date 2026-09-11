@@ -1,110 +1,105 @@
 ## FIUBA - Electrónica - Taller de Sistemas Embebidos
-## Trabajo Práctico N°: 1 - Diagramas de Estado - Modelado
-### Archivo: tdse-tp1_00-problem_approach.md
+
+## Trabajo Práctico N° 1 - Diagramas de Estado - Modelado
+
+### Archivo: `tdse-tp1_00-problem_approach.md`
 
 ---
 
-## 1. Solución de COMA Electronics:
+## 1. Solución de COMA Electronics
 
-El documento toma como modelo comercial de referencia el Intelligent Parking Management System de la firma COMA Electronics. Esta solución integra los siguientes componentes principales y flujo de trabajo:
+Como referencia para el desarrollo del proyecto se toma el **Intelligent Parking Management System** de COMA Electronics, un sistema destinado a automatizar la gestión de estacionamientos.
 
-## Arquitectura General del Sistema
-   La infraestructura del sistema de estacionamiento está compuesta por:
-   - Servidor Central (Parking System Server): Centraliza el control y procesamiento de datos.
-   - Terminales de Acceso: Módulos de entrada (Entry Machine) y de salida (Exit Machine).
-   - Estaciones de Cobro: Computadora de peaje (Toll Computer) y/o Estación de Pago Automático (Automatic Pay Station).
+La solución está compuesta principalmente por:
 
-## Flujo Operativo del Sistema (Automated Parking System)
-   El ciclo completo de control de acceso y cobro comprende tres fases:
-   - Ingreso: El vehículo se aproxima a la terminal de entrada. Al presionar el botón (Ticket Button), la máquina emite un ticket o tarjeta con un número de serie, fecha y hora, y envía la señal de apertura a la barrera de acceso (Barrier gate). El área de entrada integra cámaras, el dispenser de tickets, escáner y bobinas sensoras de presencia (sensor coils).
-   - Estacionamiento y Pago: El cliente estaciona su vehículo y, antes de regresar a él, efectúa el pago en la caja central o en la estación automática de cobro (ej. P20 Automatic Pay Station). Al pagar, el ticket o tarjeta queda validado para la salida con un tiempo de gracia preestablecido.
-   - Egreso: El vehículo se presenta en la terminal de salida, donde el escáner lee el ticket validado y envía la señal para abrir la barrera de salida.
+* **Parking System Server:** servidor encargado de centralizar la información y gestión del estacionamiento.
+* **Entry Machine:** terminal encargada de gestionar el ingreso de vehículos.
+* **Exit Machine:** terminal encargada de gestionar el egreso de vehículos.
+* **Toll Computer / Automatic Pay Station:** dispositivos destinados a gestionar el cobro.
 
-## Componentes de la Terminal de Entrada (Parking Ticket Dispenser Machine - Entry)
-La terminal física de entrada de COMA incluye:
+Dentro de esta solución se toma como referencia la **Parking Ticket Dispenser Machine (Entry)**, correspondiente a la terminal de entrada. Esta permite detectar la llegada de un vehículo, interactuar con el usuario, emitir un ticket y controlar la apertura de la barrera para permitir el ingreso al estacionamiento.
 
-   - Pantalla LCD de 7" e indicador por voz (Voice Prompt).
-   - Botón de ticket (Ticket Button) y ranura de emisión (Ticket Slot).
-   - Lector de tarjetas (Card Reader) y botón de ayuda (Help Button).
-   - Cámara motorizada con luz automática e intercomunicador de video (opcional).
-   - Barrera de alta velocidad activada por radar.
-   - Visualizador LED de plazas vacantes (por ejemplo: "Vacant: 128")
+---
 
-## 2. Implementación de la Parking Ticket Dispenser Machine (Entry):
+## 2. Implementación de la Parking Ticket Dispenser Machine (Entry)
 
-## Arquitectura Modular (Escrutar, Procesar, Actuar)
+Para el proyecto se propone implementar un **Producto Mínimo Viable (MVP)** de la terminal de entrada.
 
-El comportamiento del sistema embebido se desglosa en una estructura modular organizada en tres capas:
-### 1. Escrutar (Scrutinize / Sensores - Digital Inputs):
-   Encargado de capturar el estado de los elementos de entrada: la cámara (Camera), el pulsador de ticket (Button) y el detector de presencia vehicular (Sensor Coil).
+El comportamiento del sistema se divide en tres módulos de código C:
 
-### 2. Procesar (Process / Sistema - System):
-   Gestiona la lógica de control y la secuencia de estados del prototipo: llegada del vehículo (Car arrives) $\rightarrow$ mensaje de bienvenida (Welcome) $\rightarrow$ presión del botón (Button is pressed) $\rightarrow$ impresión del ticket (Print ticket) $\rightarrow$ apertura de barrera (Open barrier) $\rightarrow$ vehículo ingresado (Car inside) $\rightarrow$ cierre de barrera (Close barrier) $\rightarrow$ egreso del área de entrada (Car leaves).
+* **Sensor:** encargado de **escrutar** las entradas del sistema, como `Camera`, `Button` y `Sensor Coil`.
+* **System:** encargado de **procesar** los eventos recibidos desde los sensores y determinar las acciones que debe realizar el sistema.
+* **Actuator:** encargado de **actuar** sobre las salidas, como `Display`, `Printer`, `Barrier` y `Server`.
 
-### 3.Actuar (Act / Actuadores - Digital Outputs):
-   Maneja las señales enviadas a las salidas físicas: pantalla (Display), impresora (Printer), barrera de acceso (Barrier) y servidor (Server).
+Por lo tanto, la arquitectura general implementada es:
 
-## Sustitución para Prototipado
+**Sensor (Escrutar) → System (Procesar) → Actuator (Actuar)**
 
-En caso de no disponer de los sensores o actuadores físicos reales para las pruebas del MVP, la especificación permite reemplazarlos por componentes discretos simples:
+Los módulos se comunican y sincronizan mediante **mensajes**.
 
-   - Entradas (Sensores): La cámara (Camera) y la bobina sensora (Sensor coil) se representan mediante llaves de tipo On/Off, mientras que el botón (Button) se implementa con un pulsador.
-   - Salidas (Actuadores): La barrera (Barrier) se simula mediante un indicador LED.
+---
 
-## Sincronización y modelo de ejecución
+## 3. Modelos de comportamiento de los módulos
 
-   - Comunicación por Mensajes: La interacción y sincronización entre los módulos de sensores, sistema y actuadores se realiza exclusivamente mediante el intercambio de mensajes (Messages)
-   - Ejecutivo Cíclico No Bloqueante (Cyclic Executive):
-        - La ejecución se realiza mediante un ciclo no bloqueante con un período de 1 ms (each 1mS).
-        - En cada iteración de 1 ms, el sistema ejecuta secuencialmente: la revisión de cambios en los sensores (y emisión de mensajes), la lectura/procesamiento de mensajes en el sistema (y generación de nuevos mensajes) y la actualización de los actuadores en función de los mensajes recibidos.
-        - Regla de diseño clave: Debe garantizarse un comportamiento comunitario donde ningún módulo se apropie del uso del microprocesador; el uso de código bloqueante es inaceptable.
+Los tres módulos se implementan como módulos de código C temporizados mediante:
 
-## 3. Modelos para describir el comportamiento de cada uno de los módulos de código en C:
+**Update by Time Code, period = 1 ms**
 
-### 1. Escrutar $\rightarrow$ Sensor (Digital Inputs)
-   Encargado de inspeccionar las entradas digitales (cámara, botón y bobina sensora).
-   
-   Algoritmo de ejecución (cada 1 ms):
-   
-   - Recorre iterativamente cada sensor desde 1 hasta N (Sensor (from 1 to N)).
-   - Evalúa si ocurrió algún cambio en el estado del sensor (Any Change?).
-   - Si se detecta un cambio, genera y deposita un mensaje (Put Message).   
-   - Verifica si se evaluó el último sensor (Last Sensor?) para finalizar el ciclo de escrutinio.
+### Sensor → Escrutar
 
-### 2.  Procesar $\rightarrow$ System (Interface / System)
-   Encargado de la lógica de control del sistema y la gestión de la máquina de estados.
-   
-   Algoritmo de ejecución (cada 1 ms):
-   
-   - Comprueba si existe algún mensaje entrante proveniente de los sensores (Any Message?).
-   - Si hay un mensaje, lo lee y carga (Load Message).
-   - Procesa el mensaje y determina si produce una transición o cambio en el estado del sistema (Any Change?).
-   - Si corresponde un cambio, genera y deposita un mensaje saliente destinado a los actuadores (Put Message).
+El módulo `Sensor` se ejecuta periódicamente cada 1 ms y se encarga de revisar el estado de las entradas digitales.
 
-### 3. Actuar $\rightarrow$ Actuator (Digital Outputs)
-   Encargado de modificar el estado de los componentes físicos de salida (pantalla, impresora, barrera, servidor).
-   
-   Algoritmo de ejecución (cada 1 ms):
-   
-   - Recorre iterativamente cada actuador desde 1 hasta N (Actuator (from 1 to N)).
-   - Verifica si hay algún mensaje de comando destinado a ese actuador (Any Message?).
-   - Si existe el mensaje, lo carga (Load Message).
-   - Determina si el mensaje exige modificar el estado de la salida (Any Change?).
-   - En caso afirmativo, ejecuta la acción física sobre la salida digital (Make Action).
-   - Comprueba si se alcanzó el último actuador (Last Actuator?) para concluir la tarea.
+* Recorre los sensores.
+* Comprueba si ocurrió algún cambio (`Any Change?`).
+* Si detecta un cambio, genera el mensaje correspondiente (`Put Message`).
+* Continúa hasta verificar el último sensor (`Last Sensor?`).
 
-## 4. Reemplazo pulsadores , interruptores dip switch (Digital Inputs) a los sensores reales (camara, button y sensor coil) y led (Digital Outputs) a los actuadores reales (Display, Printer, Barrier y Sever)
+### System → Procesar
 
-## Reemplazo de sensores (Digital Inputs) $\rightarrow$ Módulo `Sensor` (Escrutar)
-Las entradas digitales reales del entorno de entrada se sustituyen por interruptores y pulsadores de la siguiente manera:
-- Camera $\rightarrow$ Interruptor DIP Switch / Llave On/Off: Permite simular de forma permanente o estática la presencia de un vehículo dentro del rango visual de la cámara de entrada.
-- Button $\rightarrow$ Pulsador (Pushbutton): Simula la acción momentánea del usuario al presionar el botón físico de la máquina para solicitar la impresión del ticket.
-- Sensor Coil $\rightarrow$ Interruptor DIP Switch / Llave On/Off: Simula la detección de masa metálica del automóvil cuando se posiciona o pasa sobre la bobina inductiva del suelo.
+El módulo `System` se ejecuta periódicamente cada 1 ms y contiene la lógica de control del sistema.
 
-## Reemplazo de Actuadores (Digital Outputs) $\rightarrow$ Módulo Actuator (Actuar)
-Las salidas digitales que comandan la periferia del estacionamiento se reflejan visualmente mediante LEDs indicadores:
-- Barrier $\rightarrow$ LED de Barrera: Encendido cuando la barrera está arriba/abierta y apagado cuando está abajo/cerrada.
-- Display $\rightarrow$ LED de Estado/Pantalla: Se enciende cuando hay un mensaje activo para el usuario (o bien se acompaña de salidas por consola printf).
-- Printer $\rightarrow$ LED de Impresión: Se activa brevemente indicando el proceso de emisión/impresión del ticket.
-- Server $\rightarrow$ LED de Comunicación: Indica la transmisión de eventos o validaciones de ingreso hacia el servidor central.
+* Comprueba si existe un mensaje (`Any Message?`).
+* Si existe, carga el mensaje (`Load Message`).
+* Procesa el evento recibido.
+* Determina si debe producirse algún cambio (`Any Change?`).
+* Si corresponde, genera un mensaje destinado al módulo `Actuator` (`Put Message`).
 
+### Actuator → Actuar
+
+El módulo `Actuator` se ejecuta periódicamente cada 1 ms y se encarga de controlar las salidas digitales.
+
+* Recorre los actuadores.
+* Comprueba si existe un mensaje (`Any Message?`).
+* Si existe, carga el mensaje (`Load Message`).
+* Determina si debe modificarse la salida (`Any Change?`).
+* Ejecuta la acción correspondiente (`Make Action`).
+* Continúa hasta verificar el último actuador (`Last Actuator?`).
+
+La ejecución de los módulos debe ser **no bloqueante**, evitando que alguno de ellos se apropie del uso de la CPU.
+
+---
+
+## 4. Reemplazo de sensores y actuadores
+
+Para realizar el prototipo sin disponer de los sensores y actuadores reales, se reemplazan por entradas y salidas digitales simples.
+
+### Digital Inputs → Sensor
+
+| Sensor real   | Reemplazo              |
+| ------------- | ---------------------- |
+| `Camera`      | Interruptor DIP Switch |
+| `Button`      | Pulsador               |
+| `Sensor Coil` | Interruptor DIP Switch |
+
+Los interruptores DIP Switch permiten representar estados digitales estables, mientras que el pulsador permite representar la acción momentánea de solicitar un ticket.
+
+### Digital Outputs → Actuator
+
+| Actuador real | Reemplazo |
+| ------------- | --------- |
+| `Display`     | LED       |
+| `Printer`     | LED       |
+| `Barrier`     | LED       |
+| `Server`      | LED       |
+
+Los LEDs permiten representar visualmente la activación de cada una de las salidas digitales durante las pruebas del prototipo.
