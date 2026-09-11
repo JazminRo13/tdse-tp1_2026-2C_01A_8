@@ -4,215 +4,339 @@
 
 ---
 
-## Modelo System
+# Modelo System
 
-El modelo `System` tiene como objetivo **procesar** los eventos recibidos desde el módulo `Sensor` y determinar las acciones que deben realizarse sobre el módulo `Actuator`.
+El modelo `System` tiene como función **procesar** los eventos recibidos desde
+el módulo `Sensor` y determinar las acciones que deben ejecutarse de acuerdo
+con el estado actual del sistema.
 
-El módulo se implementa mediante un modelo de código C temporizado:
+El módulo se implementa como un módulo de código C temporizado:
 
 **Update by Time Code, period = 1 ms**
 
-Por lo tanto, el modelo `System` se ejecuta periódicamente cada 1 ms, procesa los eventos recibidos y genera las acciones correspondientes sin utilizar código bloqueante.
+Por lo tanto, el módulo `System` se ejecuta periódicamente cada 1 ms,
+procesando los mensajes disponibles y devolviendo luego el control de la CPU.
+
+La implementación debe ser no bloqueante.
 
 ---
 
+# Paso 08 - Eventos y Acciones del modelo System
+
 ## Eventos del modelo System
 
-Los eventos del modelo `System` son generados principalmente por el módulo `Sensor` como consecuencia de los cambios detectados en las entradas digitales.
+Los eventos del modelo `System` son generados a partir de los cambios
+detectados por el módulo `Sensor`.
 
-Para la implementación se consideran las siguientes entradas:
+De acuerdo con el comportamiento de la `Parking Ticket Dispenser Machine (Entry)`,
+se consideran los siguientes eventos:
 
-- `Camera`: representada mediante una llave On/Off.
-- `Button`: representado mediante un pulsador.
-- `Sensor Coil`: representado mediante una llave On/Off.
+- `EV_SYS_CAR_ARRIVES`: indica que un vehículo llegó a la terminal de entrada.
+- `EV_SYS_BTN_PRESSED`: indica que el usuario presionó el botón para solicitar el ticket.
+- `EV_SYS_CAR_LEAVES`: indica que el vehículo abandonó la zona correspondiente al sensor de entrada.
+- `EV_SYS_CAR_INSIDE`: indica que el vehículo completó el ingreso al estacionamiento.
 
-Siguiendo la convención de identificadores:
+Estos eventos funcionan como **triggers** para las transiciones del modelo
+`System`.
 
-`signal → EV_SYS_NAME`
+La relación con las entradas del sistema es:
 
-los eventos recibidos por el modelo `System` representan los cambios detectados y validados por el modelo `Sensor`.
+- `Camera` → genera el evento asociado a `Car arrives`.
+- `Button` → genera el evento asociado a `Button is pressed`.
+- `Sensor Coil` → genera los eventos asociados al movimiento del vehículo
+  durante el ingreso.
 
-Se consideran los siguientes eventos:
+Para el prototipo, las entradas reales pueden ser reemplazadas por:
 
-- `EV_SYS_CAMERA_ON`: indica la activación de la entrada correspondiente a `Camera`.
-- `EV_SYS_CAMERA_OFF`: indica la desactivación de la entrada correspondiente a `Camera`.
-- `EV_SYS_BTN_PRESSED`: indica que se confirmó la pulsación del botón.
-- `EV_SYS_BTN_NOT_PRESSED`: indica que se confirmó la liberación del botón.
-- `EV_SYS_SENSOR_COIL_ON`: indica que se detectó la activación del `Sensor Coil`.
-- `EV_SYS_SENSOR_COIL_OFF`: indica que se detectó la desactivación del `Sensor Coil`.
-
-Estos eventos actúan como **triggers** para producir las transiciones correspondientes dentro del modelo `System`.
+- `Camera` → llave On/Off.
+- `Button` → pulsador.
+- `Sensor Coil` → llave On/Off.
 
 ---
 
 ## Acciones del modelo System
 
-Las acciones del modelo `System` se producen como consecuencia de los eventos recibidos y del estado actual del sistema.
+Las acciones del modelo `System` se producen como consecuencia de los eventos
+recibidos y del estado actual del sistema.
 
 Las acciones pueden:
 
-- Generar **signals (Eventos)** destinados al modelo `Actuator`.
+- Generar signals o eventos destinados a otros módulos.
 - Ejecutar funciones.
 - Inicializar o modificar variables de control.
 - Inicializar o modificar variables de temporización (`timer`).
 
-Las variables de control o temporización pueden utilizarse como `guard` para condicionar las transiciones del modelo.
+Las variables de control pueden utilizarse como `guard` para condicionar una
+transición mediante:
 
-Para la implementación del prototipo se considera como actuador únicamente la barrera:
+`trigger [guard] / effect`
+
+De acuerdo con la secuencia de funcionamiento de la máquina de entrada, se
+consideran las siguientes acciones:
+
+- `EV_ACT_WELCOME`: solicitar la visualización del mensaje de bienvenida.
+- `EV_ACT_PRINT_TICKET`: solicitar la impresión del ticket.
+- `EV_ACT_BARRIER_OPEN`: solicitar la apertura de la barrera.
+- `EV_ACT_BARRIER_CLOSE`: solicitar el cierre de la barrera.
+- `EV_ACT_CAR_INSIDE`: informar que el vehículo ingresó al estacionamiento.
+
+Estas acciones corresponden a los elementos:
+
+- `Welcome` → `Display`.
+- `Print ticket` → `Printer`.
+- `Open barrier` → `Barrier`.
+- `Close barrier` → `Barrier`.
+- `Car inside` → `Server`.
+
+En la implementación física simplificada, el actuador real que se reemplaza
+explícitamente por una salida digital es:
 
 - `Barrier` → LED.
 
-Por lo tanto, las acciones principales que puede generar el modelo `System` hacia el modelo `Actuator` son:
-
-- `EV_ACT_BARRIER_OPEN`: solicita la apertura de la barrera.
-- `EV_ACT_BARRIER_CLOSE`: solicita el cierre de la barrera.
-
-El modelo `System` no modifica directamente la salida digital asociada a la barrera. En su lugar, genera un evento para que el módulo `Actuator` realice la acción correspondiente.
+El LED permite representar visualmente el estado de la barrera durante las
+pruebas del prototipo.
 
 ---
 
-## Procesamiento del modelo System
+## Secuencia de funcionamiento
 
-El módulo `System` recibe los eventos generados por el módulo `Sensor` y los procesa de acuerdo con el estado actual del sistema.
+El comportamiento general del sistema puede representarse mediante:
 
-Su funcionamiento general consiste en:
+`Car arrives`
 
-1. Verificar si existe un mensaje proveniente del módulo `Sensor`.
-2. Cargar el mensaje recibido.
-3. Identificar el evento correspondiente.
-4. Procesar el evento de acuerdo con el estado actual del sistema.
-5. Evaluar las condiciones (`guards`) asociadas a las posibles transiciones.
-6. Realizar la transición de estado cuando corresponda.
-7. Ejecutar las acciones asociadas a la transición.
-8. Generar, cuando sea necesario, un evento destinado al módulo `Actuator`.
+↓
 
-Todo este procesamiento se realiza de manera no bloqueante y el módulo devuelve el control de la CPU al finalizar cada actualización.
+`Welcome`
+
+↓
+
+`Button is pressed`
+
+↓
+
+`Print ticket`
+
+↓
+
+`Open barrier`
+
+↓
+
+`Car leaves`
+
+↓
+
+`Close barrier`
+
+↓
+
+`Car inside`
+
+El módulo `System` recibe los eventos correspondientes y genera las acciones
+necesarias para continuar con la secuencia de ingreso.
+
+---
+
+# Paso 09 - Tabla de Estados y Excitaciones del modelo System
+
+Para representar el comportamiento del módulo `System` se propone dividir la
+secuencia de ingreso en diferentes estados.
+
+Siguiendo la convención:
+
+`state → ST_SYS_NAME`
+
+se definen los siguientes estados:
+
+- `ST_SYS_IDLE`: estado inicial o de reposo. El sistema espera la llegada de un vehículo.
+- `ST_SYS_WAIT_FOR_BTN`: se detectó la llegada de un vehículo y el sistema espera que el usuario presione el botón.
+- `ST_SYS_WAIT_FOR_CAR_LEAVES`: se solicitó el ticket y la apertura de la barrera; el sistema espera que el vehículo abandone la zona de entrada.
+- `ST_SYS_WAIT_FOR_CAR_INSIDE`: el vehículo abandonó la zona de entrada y el sistema espera confirmar que se encuentra dentro del estacionamiento.
+
+---
+
+## Tabla de Estados y Excitaciones
+
+| Current State | Event | [Guard] | Next State | Actions |
+|---|---|---|---|---|
+| `ST_SYS_IDLE` | `EV_SYS_CAR_ARRIVES` | - | `ST_SYS_WAIT_FOR_BTN` | `EV_ACT_WELCOME` |
+| `ST_SYS_WAIT_FOR_BTN` | `EV_SYS_BTN_PRESSED` | - | `ST_SYS_WAIT_FOR_CAR_LEAVES` | `EV_ACT_PRINT_TICKET`, `EV_ACT_BARRIER_OPEN` |
+| `ST_SYS_WAIT_FOR_CAR_LEAVES` | `EV_SYS_CAR_LEAVES` | - | `ST_SYS_WAIT_FOR_CAR_INSIDE` | `EV_ACT_BARRIER_CLOSE` |
+| `ST_SYS_WAIT_FOR_CAR_INSIDE` | `EV_SYS_CAR_INSIDE` | - | `ST_SYS_IDLE` | `EV_ACT_CAR_INSIDE` |
+
+---
+
+## Descripción de las transiciones
+
+### 1. Llegada del vehículo
+
+El sistema comienza en:
+
+`ST_SYS_IDLE`
+
+Cuando recibe:
+
+`EV_SYS_CAR_ARRIVES`
+
+se detecta que un vehículo llegó a la terminal de entrada.
+
+Como acción, el sistema genera:
+
+`EV_ACT_WELCOME`
+
+para solicitar la presentación del mensaje de bienvenida.
+
+Luego, el sistema pasa a:
+
+`ST_SYS_WAIT_FOR_BTN`
+
+y queda a la espera de que el usuario presione el botón.
+
+---
+
+### 2. Solicitud del ticket
+
+Cuando el sistema se encuentra en:
+
+`ST_SYS_WAIT_FOR_BTN`
+
+y recibe:
+
+`EV_SYS_BTN_PRESSED`
+
+se interpreta que el usuario solicitó el ticket.
+
+El sistema genera las acciones:
+
+- `EV_ACT_PRINT_TICKET`
+- `EV_ACT_BARRIER_OPEN`
+
+La primera solicita la impresión del ticket y la segunda solicita la apertura
+de la barrera.
+
+Luego, el sistema pasa al estado:
+
+`ST_SYS_WAIT_FOR_CAR_LEAVES`
+
+donde espera que el vehículo abandone la zona de entrada.
+
+---
+
+### 3. Vehículo abandona la zona de entrada
+
+Cuando el sistema se encuentra en:
+
+`ST_SYS_WAIT_FOR_CAR_LEAVES`
+
+y recibe:
+
+`EV_SYS_CAR_LEAVES`
+
+se interpreta que el vehículo abandonó la zona correspondiente al sensor de
+entrada.
+
+Como acción, el sistema genera:
+
+`EV_ACT_BARRIER_CLOSE`
+
+para solicitar el cierre de la barrera.
+
+Luego, el sistema pasa a:
+
+`ST_SYS_WAIT_FOR_CAR_INSIDE`
+
+---
+
+### 4. Vehículo dentro del estacionamiento
+
+Cuando el sistema se encuentra en:
+
+`ST_SYS_WAIT_FOR_CAR_INSIDE`
+
+y recibe:
+
+`EV_SYS_CAR_INSIDE`
+
+se confirma que el vehículo completó el ingreso.
+
+Como acción, el sistema genera:
+
+`EV_ACT_CAR_INSIDE`
+
+para informar esta situación.
+
+Finalmente, el modelo regresa al estado:
+
+`ST_SYS_IDLE`
+
+quedando preparado para procesar el ingreso de un nuevo vehículo.
 
 ---
 
 ## Triggers, Guards y Effects
 
-Las transiciones del modelo `System` pueden representarse mediante:
+Las transiciones pueden representarse mediante:
 
 `trigger [guard] / effect`
 
 donde:
 
-- **trigger:** evento que provoca la evaluación de una transición.
-- **guard:** condición que debe cumplirse para permitir la transición.
-- **effect:** acción que se ejecuta como consecuencia de la transición.
+- **Trigger:** evento que provoca la evaluación de una transición.
+- **Guard:** condición que debe cumplirse para realizar la transición.
+- **Effect:** acción ejecutada como consecuencia de la transición.
 
-Los `triggers` corresponden principalmente a los eventos recibidos desde el módulo `Sensor`.
+En este modelo básico no se requieren condiciones adicionales para las
+transiciones, por lo que la columna `[Guard]` se representa mediante `-`.
 
-Los `guards` pueden depender de variables de control o temporización utilizadas por el modelo `System`.
+Por ejemplo:
 
-Los `effects` pueden modificar variables internas, ejecutar funciones o generar eventos destinados al módulo `Actuator`.
+`EV_SYS_BTN_PRESSED / EV_ACT_PRINT_TICKET, EV_ACT_BARRIER_OPEN`
 
-Por ejemplo, cuando las condiciones del sistema determinan que debe permitirse el ingreso del vehículo, el modelo `System` puede generar:
-
-`EV_ACT_BARRIER_OPEN`
-
-De manera equivalente, cuando se determina que el vehículo ya ingresó y corresponde cerrar la barrera, puede generar:
-
-`EV_ACT_BARRIER_CLOSE`
+indica que la pulsación validada del botón produce la transición de estado y,
+como consecuencia, se solicita la impresión del ticket y la apertura de la
+barrera.
 
 ---
 
-## Modelo de ejecución temporizado
+## Ejecución temporizada
 
-El modelo `System` utiliza:
+El modelo `System` se ejecuta mediante:
 
 **Update by Time Code, period = 1 ms**
 
-Esto significa que el módulo es actualizado periódicamente cada 1 ms.
+En cada actualización, el módulo:
 
-La ejecución debe ser **no bloqueante**, por lo que el módulo realiza el procesamiento correspondiente y devuelve el control de la CPU sin realizar esperas activas.
+1. Verifica si existen mensajes disponibles.
+2. Carga el evento recibido.
+3. Procesa el evento según el estado actual.
+4. Evalúa las condiciones de transición.
+5. Actualiza el estado cuando corresponde.
+6. Genera las acciones o mensajes necesarios.
+7. Devuelve el control de la CPU.
 
-Esto permite mantener el comportamiento comunitario del sistema, evitando que un único módulo se apropie del uso del microprocesador.
+La implementación debe ser no bloqueante, garantizando que ningún módulo se
+apropie del uso del microprocesador.
 
 ---
 
-## Relación con los módulos Sensor y Actuator
+## Resumen del modelo
 
-El flujo general de información es:
+El comportamiento del modelo `System` puede resumirse como:
 
-```text
-        SENSOR
-          │
-          │ Eventos
-          ▼
-       SYSTEM
-          │
-          │ Eventos
-          ▼
-      ACTUATOR
-          │
-          ▼
-       BARRIER
-         (LED)
----
+`ST_SYS_IDLE`
 
-## Tabla de Estados y Excitaciones del modelo System
-
-El modelo `System` procesa los eventos recibidos desde el módulo `Sensor`
-y determina las acciones correspondientes de acuerdo con el estado actual
-del sistema.
-
-Los estados considerados son:
-
-- `ST_SYS_IDLE`: estado de reposo. No hay ningún vehículo esperando para ingresar.
-- `ST_SYS_WAIT_FOR_BTN`: se detectó un vehículo y el sistema espera que el usuario presione el botón.
-- `ST_SYS_WAIT_FOR_CAR`: se confirmó la solicitud de ingreso, se ordenó abrir la barrera y el sistema espera que el vehículo ingrese.
-
-La tabla de Estados y Excitaciones del modelo `System` es:
-
-| Current State | Event | [Guard] | Next State | Actions |
-|---|---|---|---|---|
-| `ST_SYS_IDLE` | `EV_SYS_SENSOR_COIL_ON` | - | `ST_SYS_WAIT_FOR_BTN` | - |
-| `ST_SYS_WAIT_FOR_BTN` | `EV_SYS_BTN_PRESSED` | - | `ST_SYS_WAIT_FOR_CAR` | `EV_ACT_BARRIER_OPEN` |
-| `ST_SYS_WAIT_FOR_CAR` | `EV_SYS_SENSOR_COIL_OFF` | - | `ST_SYS_IDLE` | `EV_ACT_BARRIER_CLOSE` |
-
-### Descripción de las transiciones
-
-#### Detección del vehículo
-
-Cuando el sistema se encuentra en `ST_SYS_IDLE` y recibe el evento
-`EV_SYS_SENSOR_COIL_ON`, se interpreta que un vehículo se encuentra
-en la zona de entrada.
-
-El sistema cambia al estado:
+↓ `EV_SYS_CAR_ARRIVES / EV_ACT_WELCOME`
 
 `ST_SYS_WAIT_FOR_BTN`
 
-donde espera que el usuario solicite el ingreso mediante el pulsador.
+↓ `EV_SYS_BTN_PRESSED / EV_ACT_PRINT_TICKET + EV_ACT_BARRIER_OPEN`
 
-#### Solicitud de ingreso
+`ST_SYS_WAIT_FOR_CAR_LEAVES`
 
-Cuando el sistema se encuentra en `ST_SYS_WAIT_FOR_BTN` y recibe
-`EV_SYS_BTN_PRESSED`, se confirma la solicitud del usuario.
+↓ `EV_SYS_CAR_LEAVES / EV_ACT_BARRIER_CLOSE`
 
-El sistema genera:
+`ST_SYS_WAIT_FOR_CAR_INSIDE`
 
-`EV_ACT_BARRIER_OPEN`
-
-como evento para el módulo `Actuator`, solicitando la apertura de la barrera.
-
-Luego cambia al estado:
-
-`ST_SYS_WAIT_FOR_CAR`
-
-#### Ingreso del vehículo
-
-Cuando el sistema se encuentra en `ST_SYS_WAIT_FOR_CAR` y recibe
-`EV_SYS_SENSOR_COIL_OFF`, se interpreta que el vehículo abandonó la zona
-detectada por el sensor de entrada.
-
-El sistema genera:
-
-`EV_ACT_BARRIER_CLOSE`
-
-como evento para el módulo `Actuator`, solicitando el cierre de la barrera.
-
-Finalmente, el sistema regresa a:
+↓ `EV_SYS_CAR_INSIDE / EV_ACT_CAR_INSIDE`
 
 `ST_SYS_IDLE`
