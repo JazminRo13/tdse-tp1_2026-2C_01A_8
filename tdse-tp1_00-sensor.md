@@ -137,3 +137,33 @@ EV_BTN_NOT_PRESSED [tick >= DEL_BTN_NAME] / EV_SYS_BTN_NOT_PRESSED
 | Delay           | `DEL_BTN_NAME`           | Tiempo requerido para validar una posición estable |
 
 El modelo `Sensor` permite así escrutar el botón periódicamente, eliminar los cambios producidos por el rebote mecánico y comunicar al modelo `System` únicamente los cambios de posición considerados válidos.
+
+---
+
+## Tabla de Estados y Excitaciones del modelo Sensor
+
+Para implementar el *debouncing* del pulsador se utilizan estados
+intermedios que permiten verificar que un cambio de posición permanezca
+estable durante un determinado intervalo de tiempo.
+
+Los estados definidos para el modelo `Sensor` son:
+
+- `ST_BTN_NOT_PRESSED`: el botón se encuentra liberado y estable.
+- `ST_BTN_PRESSING`: se detectó una posible pulsación y se está verificando su estabilidad.
+- `ST_BTN_PRESSED`: el botón se encuentra presionado y estable.
+- `ST_BTN_RELEASING`: se detectó una posible liberación y se está verificando su estabilidad.
+
+El temporizador `tick` se incrementa periódicamente cada 1 ms y se utiliza
+junto con `DEL_BTN_NAME` para determinar cuándo una nueva posición del
+botón puede considerarse estable.
+
+| Current State | Event | [Guard] | Next State | Actions |
+|---|---|---|---|---|
+| `ST_BTN_NOT_PRESSED` | `EV_BTN_PRESSED` | - | `ST_BTN_PRESSING` | `tick = 0` |
+| `ST_BTN_PRESSING` | `EV_BTN_NOT_PRESSED` | - | `ST_BTN_NOT_PRESSED` | `tick = 0` |
+| `ST_BTN_PRESSING` | `EV_BTN_PRESSED` | `tick < DEL_BTN_NAME` | `ST_BTN_PRESSING` | `tick++` |
+| `ST_BTN_PRESSING` | `EV_BTN_PRESSED` | `tick >= DEL_BTN_NAME` | `ST_BTN_PRESSED` | `EV_SYS_BTN_PRESSED` |
+| `ST_BTN_PRESSED` | `EV_BTN_NOT_PRESSED` | - | `ST_BTN_RELEASING` | `tick = 0` |
+| `ST_BTN_RELEASING` | `EV_BTN_PRESSED` | - | `ST_BTN_PRESSED` | `tick = 0` |
+| `ST_BTN_RELEASING` | `EV_BTN_NOT_PRESSED` | `tick < DEL_BTN_NAME` | `ST_BTN_RELEASING` | `tick++` |
+| `ST_BTN_RELEASING` | `EV_BTN_NOT_PRESSED` | `tick >= DEL_BTN_NAME` | `ST_BTN_NOT_PRESSED` | `EV_SYS_BTN_NOT_PRESSED` |
