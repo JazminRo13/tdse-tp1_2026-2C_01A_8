@@ -150,3 +150,69 @@ El flujo general de información es:
           ▼
        BARRIER
          (LED)
+---
+
+## Tabla de Estados y Excitaciones del modelo System
+
+El modelo `System` procesa los eventos recibidos desde el módulo `Sensor`
+y determina las acciones correspondientes de acuerdo con el estado actual
+del sistema.
+
+Los estados considerados son:
+
+- `ST_SYS_IDLE`: estado de reposo. No hay ningún vehículo esperando para ingresar.
+- `ST_SYS_WAIT_FOR_BTN`: se detectó un vehículo y el sistema espera que el usuario presione el botón.
+- `ST_SYS_WAIT_FOR_CAR`: se confirmó la solicitud de ingreso, se ordenó abrir la barrera y el sistema espera que el vehículo ingrese.
+
+La tabla de Estados y Excitaciones del modelo `System` es:
+
+| Current State | Event | [Guard] | Next State | Actions |
+|---|---|---|---|---|
+| `ST_SYS_IDLE` | `EV_SYS_SENSOR_COIL_ON` | - | `ST_SYS_WAIT_FOR_BTN` | - |
+| `ST_SYS_WAIT_FOR_BTN` | `EV_SYS_BTN_PRESSED` | - | `ST_SYS_WAIT_FOR_CAR` | `EV_ACT_BARRIER_OPEN` |
+| `ST_SYS_WAIT_FOR_CAR` | `EV_SYS_SENSOR_COIL_OFF` | - | `ST_SYS_IDLE` | `EV_ACT_BARRIER_CLOSE` |
+
+### Descripción de las transiciones
+
+#### Detección del vehículo
+
+Cuando el sistema se encuentra en `ST_SYS_IDLE` y recibe el evento
+`EV_SYS_SENSOR_COIL_ON`, se interpreta que un vehículo se encuentra
+en la zona de entrada.
+
+El sistema cambia al estado:
+
+`ST_SYS_WAIT_FOR_BTN`
+
+donde espera que el usuario solicite el ingreso mediante el pulsador.
+
+#### Solicitud de ingreso
+
+Cuando el sistema se encuentra en `ST_SYS_WAIT_FOR_BTN` y recibe
+`EV_SYS_BTN_PRESSED`, se confirma la solicitud del usuario.
+
+El sistema genera:
+
+`EV_ACT_BARRIER_OPEN`
+
+como evento para el módulo `Actuator`, solicitando la apertura de la barrera.
+
+Luego cambia al estado:
+
+`ST_SYS_WAIT_FOR_CAR`
+
+#### Ingreso del vehículo
+
+Cuando el sistema se encuentra en `ST_SYS_WAIT_FOR_CAR` y recibe
+`EV_SYS_SENSOR_COIL_OFF`, se interpreta que el vehículo abandonó la zona
+detectada por el sensor de entrada.
+
+El sistema genera:
+
+`EV_ACT_BARRIER_CLOSE`
+
+como evento para el módulo `Actuator`, solicitando el cierre de la barrera.
+
+Finalmente, el sistema regresa a:
+
+`ST_SYS_IDLE`
